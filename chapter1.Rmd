@@ -1,11 +1,72 @@
-# 1 Start up datavis-R
+# Start up
 
-## 1.1 Describe my dataset
+(9.9. - 15.9.2020)
+
+The link to my github repository:
+
+<https://github.com/yufanyin/datavis-R>
+
+The link to my course diary:
+
+<https://yufanyin.github.io/datavis-R/>
+
+## .1 Describe my dataset
 
 **Structure of the data**
 
+```{r}
+learning2019 <- read.csv(file = "D:/Users/yinyf/datavis-R/learning2019.csv", stringsAsFactors = TRUE) 
+str(learning2019)
+```
 
-## 1.2
+**The aim of the study** is to investigate the interrelationships between the approaches to learning and conceptions of academic writing among international university students. Altogether 218 international students of the university participated in the study in 2018 and 2019. Students were divided into homogeneous groups based on their Z scores on the three approaches to learning. Then we compare mean differences and ANOVA results between the profiles.
 
-## 1.3
+**The data 'learning2019'** consists of 218 observations and 17 variables. It contains their scores of approaches to learning (different ways that students process information: unreflective studying, deep approach to learning and organised studying), conceptions of academic writing (blocks, procrastination, perfectionism, innate ability, knowledge transforming and productivity), and some background information (categorical variables, eg:gender, age, faculty, student status and study length).
+
+**The explanation of some columns** are as follows. Each of them was average value of 2-4 questions in 5-point Likert scale (1= totally disagree, 5 = fully agree).
+
+- "unref": relying on memorisation in the learning process, lacking the reflective approach to studying and applying the fragmented knowledge base.
+
+- "deep": comprehending the intentional content, using evidence and integrating with previous knowledge.
+
+- "orga": time management, study organisation, effort management and concentration.
+
+- "blocks": the inability to write productively whose reason is not intellectual capacity or literary skills.
+
+- "procrastination": failing to start or postponing tasks like preparing for exams and doing homework.
+
+- "perfectionism": setting overly high standards, pursuing flawlessness, and evaluating one’s behavior critically.
+
+- "innateability": writing is a skill which "is determined at birth" or "cannot be taught or developed".
+
+- "ktransforming": (knowledge transforming) using writing for developing knowledge and generating new ideas and in the reflective and dialectic processes.
+
+- "productivity": (sense of productivity) part of self-efficacy in writing.
+
+## .2 My previous experience in R
+
+- I understand the basics of data wrangling.
+
+- I learned to use R to conduct anayses such as clustering and classification **not very proficiently**.
+
+Because I attended the course "Introduction to Open Data Science" (HYMY-909, 5 cr) last autumn. Here are the link to my github repository:
+
+<https://github.com/yufanyin/IODS-project>
+
+and my course diary:
+
+<https://yufanyin.github.io/IODS-project/>
+
+## .3 Expectations for this course
+
+- To learn practical data visualization skills using R and the ggplot2 -library. I know little in data visualization.
+
+- To learn about good data visualization and avoid bad/incorrect operation. 
+
+- To produce rich, accurate and concise visualizations **using my own data**. I have found the proper method to deal with my own data and conducted using SPSS. Attending this course can help me produce better visualizations, which will benefit me a lot when I submit my FIRST article at the end of this year.
+
+
+
+
+
 
