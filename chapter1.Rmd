@@ -1,0 +1,11 @@
+# 1 Start up datavis-R
+
+## 1.1 Describe my dataset
+
+**Structure of the data**
+
+
+## 1.2
+
+## 1.3
+
