@@ -1,0 +1,60 @@
+# Week 1 
+
+yufan_yin_week1: 16.9. - 21.9.2020
+
+Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
+
+(It is the habit because of another course.)
+
+## Exercise 1 
+
+```{r}
+# Create a vector named my_vector. It should have 7 numeric elements.
+my_vector <- c(20, 14, 18, 14, 10, 16, 16)
+
+# Print your vector
+my_vector
+
+# Calculate the minimum, maximum, and median values of your vector
+summary(my_vector)
+
+# Print "The median value is XX"
+mean_exercise1 <- mean(my_vector) # Output from functions can be saved to objects
+paste("The median value is ", mean_exercise1) # Use the paste() function to print the object with text
+
+```
+
+## Exercise 2
+
+```{r}
+# Create another vector named my_vector_2. It should have the elements of my_vector divided by 2.
+my_vector_2 <- my_vector/2 # Access individual elements of a vector with indices
+my_vector_2
+
+# Create a vector named my_words. It should have 7 character elements.
+my_words <- c("swan", "goose", "mallard", "blue_tit", "philomelos", "sparrow", "gull")
+
+# Combine my_vector and my_words into a data frame.
+df <- data.frame(my_vector, my_words)
+df
+
+# Show the structure of the data frame.
+str(df)
+```
+
+## Exercise 3
+
+```{r}
+library(tidyverse)
+# Use the head() function to print the first 3 rows of your data frame.
+head(df) #How to print the first 3 rows instead of 5?
+
+# Create a new variable to the data frame which has the values of my_vector_2 (remember to save the new variable to the data frame object).
+pair <- c(my_vector_2)
+pair
+df2 <- data.frame(df,pair)
+df2
+
+# Use filter() to print rows of your data frame greater than the median value of my_vector.
+df2 %>% filter(df2 > mean(my_vector))
+```
