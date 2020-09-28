@@ -4,6 +4,8 @@ yufan_yin_week0: 9.9. - 15.9.2020
 
 Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
 
+and the repository: <https://github.com/yufanyin/datavis-R>
+
 ## .1 Describe my dataset
 
 **Structure of the data**

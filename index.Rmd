@@ -7,14 +7,13 @@ output:
   html_document:
     theme: cosmo
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     fig_caption: true
-    fig_width: 6
-    fig_height: 4
+    fig_width: 10
+    fig_height: 6
 ---
 
 ***
-  
 ```{r child = "yufan_yin_week0.Rmd"}
 ```
   
@@ -22,4 +21,7 @@ output:
 ```{r child = "yufan_yin_week1.Rmd"}
 ```
   
+***
+```{r child = "yufan_yin_week2.Rmd"}
 ```
+  

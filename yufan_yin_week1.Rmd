@@ -1,4 +1,4 @@
-# Week 1 
+# Week 1 Exercises
 
 yufan_yin_week1: 16.9. - 21.9.2020
 

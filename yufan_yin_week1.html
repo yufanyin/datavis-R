@@ -365,34 +365,34 @@ summary {
 </div>
 
 
-<div id="week-1" class="section level1">
-<h1>Week 1</h1>
+<div id="week-1-exercises" class="section level1">
+<h1>Week 1 Exercises</h1>
 <p>yufan_yin_week1: 16.9. - 21.9.2020</p>
 <p>Also see in the page to my course diary: <a href="https://yufanyin.github.io/datavis-R/" class="uri">https://yufanyin.github.io/datavis-R/</a></p>
 <p>(It is the habit because of another course.)</p>
 <div id="exercise-1" class="section level2">
 <h2>Exercise 1</h2>
 <pre class="r"><code># Create a vector named my_vector. It should have 7 numeric elements.
-my_vector &lt;- c(2, 4, 6, 8, 10, 12, 16)
+my_vector &lt;- c(20, 14, 18, 14, 10, 16, 16)
 
 # Print your vector
 my_vector</code></pre>
-<pre><code>## [1]  2  4  6  8 10 12 16</code></pre>
+<pre><code>## [1] 20 14 18 14 10 16 16</code></pre>
 <pre class="r"><code># Calculate the minimum, maximum, and median values of your vector
 summary(my_vector)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   2.000   5.000   8.000   8.286  11.000  16.000</code></pre>
+##   10.00   14.00   16.00   15.43   17.00   20.00</code></pre>
 <pre class="r"><code># Print &quot;The median value is XX&quot;
 mean_exercise1 &lt;- mean(my_vector) # Output from functions can be saved to objects
 paste(&quot;The median value is &quot;, mean_exercise1) # Use the paste() function to print the object with text</code></pre>
-<pre><code>## [1] &quot;The median value is  8.28571428571429&quot;</code></pre>
+<pre><code>## [1] &quot;The median value is  15.4285714285714&quot;</code></pre>
 </div>
 <div id="exercise-2" class="section level2">
 <h2>Exercise 2</h2>
 <pre class="r"><code># Create another vector named my_vector_2. It should have the elements of my_vector divided by 2.
 my_vector_2 &lt;- my_vector/2 # Access individual elements of a vector with indices
 my_vector_2</code></pre>
-<pre><code>## [1] 1 2 3 4 5 6 8</code></pre>
+<pre><code>## [1] 10  7  9  7  5  8  8</code></pre>
 <pre class="r"><code># Create a vector named my_words. It should have 7 character elements.
 my_words &lt;- c(&quot;swan&quot;, &quot;goose&quot;, &quot;mallard&quot;, &quot;blue_tit&quot;, &quot;philomelos&quot;, &quot;sparrow&quot;, &quot;gull&quot;)
 
@@ -400,17 +400,17 @@ my_words &lt;- c(&quot;swan&quot;, &quot;goose&quot;, &quot;mallard&quot;, &quot
 df &lt;- data.frame(my_vector, my_words)
 df</code></pre>
 <pre><code>##   my_vector   my_words
-## 1         2       swan
-## 2         4      goose
-## 3         6    mallard
-## 4         8   blue_tit
+## 1        20       swan
+## 2        14      goose
+## 3        18    mallard
+## 4        14   blue_tit
 ## 5        10 philomelos
-## 6        12    sparrow
+## 6        16    sparrow
 ## 7        16       gull</code></pre>
 <pre class="r"><code># Show the structure of the data frame.
 str(df)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    7 obs. of  2 variables:
-##  $ my_vector: num  2 4 6 8 10 12 16
+##  $ my_vector: num  20 14 18 14 10 16 16
 ##  $ my_words : chr  &quot;swan&quot; &quot;goose&quot; &quot;mallard&quot; &quot;blue_tit&quot; ...</code></pre>
 </div>
 <div id="exercise-3" class="section level2">
@@ -427,30 +427,33 @@ str(df)</code></pre>
 <pre class="r"><code># Use the head() function to print the first 3 rows of your data frame.
 head(df) #How to print the first 3 rows instead of 5?</code></pre>
 <pre><code>##   my_vector   my_words
-## 1         2       swan
-## 2         4      goose
-## 3         6    mallard
-## 4         8   blue_tit
+## 1        20       swan
+## 2        14      goose
+## 3        18    mallard
+## 4        14   blue_tit
 ## 5        10 philomelos
-## 6        12    sparrow</code></pre>
+## 6        16    sparrow</code></pre>
 <pre class="r"><code># Create a new variable to the data frame which has the values of my_vector_2 (remember to save the new variable to the data frame object).
 pair &lt;- c(my_vector_2)
 pair</code></pre>
-<pre><code>## [1] 1 2 3 4 5 6 8</code></pre>
-<pre class="r"><code>df2 &lt;- data.frame(pair)
+<pre><code>## [1] 10  7  9  7  5  8  8</code></pre>
+<pre class="r"><code>df2 &lt;- data.frame(df,pair)
 df2</code></pre>
-<pre><code>##   pair
-## 1    1
-## 2    2
-## 3    3
-## 4    4
-## 5    5
-## 6    6
-## 7    8</code></pre>
+<pre><code>##   my_vector   my_words pair
+## 1        20       swan   10
+## 2        14      goose    7
+## 3        18    mallard    9
+## 4        14   blue_tit    7
+## 5        10 philomelos    5
+## 6        16    sparrow    8
+## 7        16       gull    8</code></pre>
 <pre class="r"><code># Use filter() to print rows of your data frame greater than the median value of my_vector.
 df2 %&gt;% filter(df2 &gt; mean(my_vector))</code></pre>
-<pre><code>## [1] pair
-## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<pre><code>##   my_vector my_words pair
+## 1        20     swan   10
+## 2        18  mallard    9
+## 3        16  sparrow    8
+## 4        16     gull    8</code></pre>
 </div>
 </div>
 
