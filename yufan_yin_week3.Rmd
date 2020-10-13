@@ -1,0 +1,183 @@
+# Week 3 Exercises
+
+yufan_yin_week3: 29.9. - 5.10.2020
+
+Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+## Exercise 1
+
+### 1.1 Reading the data
+
+Read the data into R. It have 211 observations of 17 variables.  
+
+```{r, message=FALSE, warning=FALSE}
+learning2019 <- read.csv(file = "D:/Users/yinyf/datavis-R/week0/learning2019_week3.csv", stringsAsFactors = TRUE)
+learning19 <- learning2019 %>%
+  mutate(studylength = as.numeric(studylength),
+         writingcourse = as.numeric(writingcourse))
+
+str(learning19)
+
+```
+
+
+### 1.2 Creating categorical variable
+
+For my data, **studylength** is more suitable to be the categorical variable than **age**. It discribes how many months that students have studied in the university.
+
+Cut the continuous variable **studylength** into a categorical variable **studylength_group**. Use ggplot2's cutting function:  `cut_number()` makes n groups with (approximately) equal number of observations.
+
+Count observations by studylength group.
+
+```{r}
+library(ggplot2)
+learning19 %>%
+  mutate(score_group_test = cut_width(studylength, 12, boundary = 0)) %>% # range width is (max - min) / number of groups
+  count(score_group_test)
+
+```
+```{r}
+library(ggplot2)
+learning19 %>%
+  mutate(studylength_group = cut_number(studylength, 3)) %>% # each group has about 206 / 3 = 68 observations
+  count(studylength_group)
+
+```
+
+Save the results with labels to the data.
+
+```{r}
+learning19 <- learning19 %>%
+  mutate(studylength_group = cut_number(studylength, 3,
+                                 labels = c('-7','8-17','18-')))
+```
+
+```{r}
+learning19 %>% 
+  distinct(studylength_group)
+
+```
+
+
+
+## Exercise 2
+
+The chunk below is supposed to produce a plot but it has some errors.  
+
+The figure should be a scatter plot of **cluster** (different student profiles) on the x-axis and **blocks** on the y-axis, with points coloured by **studylength_group** (3 levels). It should also have three linear regression lines, one for each of the education levels.  
+
+Fix the code to produce the right figure.  
+
+What happens if you use `geom_jitter()` instead of `geom_point()`?  
+
+**Hint**: Examine the code bit by bit: start by plotting just the scatter plot without `geom_smooth()`, and add the regression lines last.  
+
+```{r}
+learning19 %>% 
+  ggplot(aes(cluster, blocks, fill = studylength_group)) + 
+  geom_col(position = "dodge") + 
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r}
+learning19 %>%
+  ggplot(aes(cluster, blocks)) + 
+  geom_col() +
+  facet_wrap(~studylength_group)
+
+```
+
+
+## Exercise 3
+
+### 3.1
+
+Calculate the mean, standard deviation (sd), and number of observations (n) of **score on blocks by student profiles and study-length group**. Also calculate the standard error of the mean (by using sd and n). Save these into a new data frame (or tibble) named cluster_blocks_stats.  
+
+
+```{r}
+cluster_blocks_stats <- learning19 %>%
+  group_by(cluster, studylength_group, .drop = FALSE) %>% # there are no observations some of the combinations, but we don't drop them
+  summarise(mean_blocks = mean(blocks),
+            sd_blocks = sd(blocks),
+            n = n()) %>%
+  ungroup()
+
+cluster_blocks_stats
+
+```
+
+```{r}
+learning19 %>%
+  ggplot(aes(cluster, blocks)) + 
+  geom_col() +
+  facet_wrap(~studylength_group)
+
+```
+
+### 3.2
+
+Using cluster_blocks_stats, plot a bar plot that has **cluster** on the x-axis, **mean score** of blocks on the y-axis, and **studylength levels** in subplots (facets).  
+
+Use `geom_errorbar()` to add error bars that represent standard errors of the mean.  
+
+```{r}
+learning19 %>%
+  ggplot(aes(cluster, blocks)) + 
+  geom_bar(stat = "summary", fun.data = "mean_se") +
+  facet_wrap(~studylength_group)
+  stat_summary(geom = "errorbar", fun.data = "mean_se") 
+  
+```
+
+
+## Exercise 4
+
+### 4.1
+
+Create a figure that has boxplots of **cluster** (x-axis) by **blocks** (y-axis). 
+
+**Note:** What does 'Ord.factor' mean? I do not know how to change the type of the variable **cluster**.
+
+
+```{r}
+learning19 %>%
+  ggplot(aes(cluster, blocks)) + 
+  geom_boxplot() +
+  facet_wrap(~studylength_group)
+```
+
+### 4.2
+
+Group the data by cluster and add mean score of blocks by cluster to a new column **mean_score**. Do this with **`mutate()`** (not `summarise()`). 
+
+Reorder the levels of cluster based on mean_score.  
+
+**Hint**: Remember to ungroup after creating the mean_score variable.  
+
+```{r}
+
+```
+
+**Note:** Maybe such types of the variables in my data is not suitable for these operation.
+
+
+## Exercise 5
+
+Using the data you modified in exercise 4.2, plot **mean scores** (x-axis) by **cluster** (y-axis) as points. The clusters should be ordered by mean score.  
+
+Use `stat_summary()` to add error bars that represent standard errors of the mean.  
+
+**Hint**: Be careful which variable - mean_score or score - you're plotting in each of the geoms.  
+
+```{r}
+
+```
+
+**Note:** Maybe the variables in my data is not suitable for such operation.
