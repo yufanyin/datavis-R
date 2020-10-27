@@ -1,0 +1,158 @@
+# Week 2 Exercises
+
+yufan_yin_week2: 23.9. - 28.9.2020
+
+Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
+
+
+## Exercise 1
+
+### 1.1 Loading libraries and suppressing any output messages in the chunk settings
+
+Create a new code chunk where you load the tidyverse package. In the chunk settings, suppress any output messages.
+
+```{r,message=FALSE, warning=FALSE, echo=FALSE}
+library(tidyverse)
+```
+
+### 1.2 Reading the data
+
+The tibble *df* has 60 observations (rows) of variables (columns) group, gender, age, score1 and score2 (continuous scores from two tests). Each row represents one participant.  
+```{r include = F}
+# this chunk generates the data, and you can ignore it
+set.seed(1)
+df  <- tibble(group = sample(c(rep(1:2, each=30))),
+              gender = sample(c(rep(c('M', 'F'), 28), rep(999,4))),
+              score1 = rnorm(60, 18, 2),
+              score2 = as.character(runif(60, 0.7, 1.1)*score1))
+  
+```
+
+```{r}
+df
+```
+
+
+There is something to fix in three of the variables. Explore the data and describe what needs to be corrected.  
+
+**Hint**: You can use e.g. str(), distinct(), and summary() to explore the data.
+
+```{r}
+str(df)
+summary(df)
+distinct(df)
+```
+
+The dataset *df* consists of 60 observations and 5 variables.It contains the membership of group, gender, age, score1, score2.
+
+
+## Exercise 2
+
+### 2.1 Tidying data
+
+Make the corrections you described above.
+
+```{r}
+
+df <- df %>%
+  mutate(gender = na_if(gender, 999)) # recode 999 to NA (missing)
+  df$score2 <- as.numeric(df$score2) # convert a character vector to a numeric vector
+  
+```
+
+### 2.2 Counting observations by grouping variables
+
+Count observations by group and gender. Arrange by the number of observations (ascending).
+```{r}
+
+df %>%
+  count(group, gender) %>% # count() is a combination of group_by() and tally()
+  arrange(desc(n)) %>% # OR: "%>% floor()"?
+  arrange(group)
+
+```
+
+
+## Exercise 3
+
+### 3.1 Creating a new variable: the difference between scores
+
+Create a new variable, **score_diff**, that contains the difference between score1 and score2.
+
+```{r}
+
+df$score_diff <- df$score1 - df$score2
+
+```
+
+### 3.2 Computing the means: using summarise() to take multiple variables in one go
+
+Compute the means of score1, score2, and score_diff.
+
+**Hint**: Like mutate(), summarise() can take multiple variables in one go.
+
+```{r}
+df %>%
+  summarise(score1_mean = mean(score1), score2_mean = mean(score2), score_diff_mean = mean(score_diff))
+
+```
+
+### 3.3 Computing the means by grouping variable
+
+Compute the means of score1, score2, and score_diff **by gender**.
+
+```{r, warning=FALSE, message=FALSE}
+grouped_df <- df %>%
+  group_by(gender)
+
+grouped_df %>%
+  summarise(score1_mean = mean(score1), score2_mean = mean(score2), score_diff_mean = mean(score_diff))
+
+```
+
+
+## Exercise 4
+
+### 4.1 Creating an x-y scatter plot
+
+Using ggplot2, create a scatter plot with score1 on the x-axis and score2 on the y-axis. 
+
+```{r}
+df %>%
+  ggplot(aes(score1, score2)) + # x = score1, y = Sscore2
+  geom_point()
+
+```
+
+### 4.2 Setting colour based on grouping variable, figure width and height
+
+Continuing with the previous plot, colour the points based on gender. 
+
+Set the output figure width to 10 and height to 6.
+
+
+```{r, fig1, fig.height = 6, fig.width = 10}
+df %>%
+  ggplot(aes(score1, score2, color = gender)) + # x = score1, y = score2
+  geom_point()
+
+```
+
+
+## Exercise 5
+
+**Note:** I did this part in another rmd file named 'index'.
+
+see: <https://github.com/yufanyin/datavis-R/blob/master/index.Rmd>
+
+### 5.1 Metadata section
+
+Add the author (your name) and date into the metadata section. Create a table of contents.
+
+
+### 5.2 Knitting
+
+Knit your document to HTML by changing `html_notebook` to `html_document` in the metadata, and pressing Knit.   
+
+See the results in my course diary: <https://yufanyin.github.io/datavis-R/>
+

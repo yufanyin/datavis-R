@@ -1,0 +1,254 @@
+# Week 5 Exercises
+
+yufan_yin_week5: 13.10. - 19.10.2020
+
+```{r include=F}
+library(tidyverse)
+```
+
+Read the file timeuse_tidy.rds with `readRDS()`. The file contains the dataset that we tidied in the exercise session: records of daily time use from participants over multiple days. Note that since the data has been stored as rds (R-specific format), column types and factor levels are as we left them, and don't need to be re-corrected.
+
+```{r}
+readRDS(file = "D:/Users/yinyf/datavis-R/week5/timeuse_tidy.rds")
+
+```
+
+```{r}
+df <- readRDS(file = "D:/Users/yinyf/datavis-R/week5/timeuse_tidy.rds")
+summary(df)
+
+```
+
+
+## Exercise 1
+
+### 1.1
+
+#### 1.1.1 Create a new variable that contains combined activity classes
+
+Create a new variable that contains combined activity classes: "Work or school" (Work, Business, Education), "Free time" (Shopping, Social / Leisure, Home, Vacation), and "Other".  
+
+```{r}
+df <- df %>%
+  mutate(activity_class = as.character(activity_class))
+
+```
+
+```{r}
+df_wide <- df %>%
+  group_by(activity_class) %>%
+  mutate(row = row_number()) %>%
+  ungroup %>%
+  spread(activity_class, time_spent) %>%
+  select(-row) #long to wide
+
+head(df_wide)
+```
+
+```{r}
+df_long1 <- df_wide %>%
+  gather(Free_time, value2, `Shopping`, `Social / Leisure`, `Home`, `Vacation`) #wide to long, I did not know the more concise way and had to do for 3 times
+
+df_long2 <- df_long1 %>%
+  gather(Work_or_school, value1, Work, Business, Education)
+
+df2 <- df_long2 %>%
+  gather(Other, value3, Exercise:Travel)
+
+head(df2) # the final results should be two columns ('activity_class' and 'time_spent'). Maybe rename column or values and then convert wide to long for one or two times. However, I could not figure out.
+
+```
+
+#### 1.1.2 Calculating the means by grouping variable
+
+Calculate the mean time spent on each of the combined activity classes, grouped by **weekday, participant ID, and occ_full_time**.  
+
+```{r}
+grouped_df2 <- df2 %>%
+  group_by(weekday)
+
+grouped_df2 %>%
+  summarise(Work_or_school_mean = mean(value1), Free_time_mean = mean(value2), Other_mean = mean(value3))
+
+```
+
+```{r}
+grouped_df2 <- df2 %>%
+  group_by(indivID)
+
+grouped_df2 %>%
+  summarise(Work_or_school_mean = mean(value1), Free_time_mean = mean(value2), Other_mean = mean(value3))
+
+```
+
+```{r}
+grouped_df2 <- df2 %>%
+  group_by(occ_full_time)
+
+grouped_df2 %>%
+  summarise(Work_or_school_mean = mean(value1), Free_time_mean = mean(value2), Other_mean = mean(value3))
+
+```
+
+
+### 1.2 Visualision
+
+Visualise the means you calculated.
+
+If I had got the right results in 1.1, the code here should be: 
+
+```fig.width=10, fig.height=8
+df2 %>%
+  ggplot(aes(activity_class2, time_spent, group = weekday, colour = weekday)) +
+  geom_point()+
+  facet_wrap(~activity_class2)
+  labs(x = "activity type", y = "Average time spent (minutes)", colour = "Activity type") + 
+
+
+df2 %>%
+  ggplot(aes(activity_class2, time_spent, group = indivID, colour = indivID)) +
+  geom_point()+
+  facet_wrap(~activity_class2)
+  labs(x = "activity type", y = "Average time spent (minutes)", colour = "Activity type") + 
+
+df2 %>%
+  ggplot(aes(activity_class2, time_spent, group = occ_full_time, colour = occ_full_time)) +
+  geom_point()+
+  facet_wrap(~activity_class2)
+  labs(x = "activity type", y = "Average time spent (minutes)", colour = "Activity type") + 
+
+```
+
+```
+df2 %>%
+  ggplot(aes(weekday, time_spent, group = week_number, color = activity_class)) + 
+  geom_line(size=1, alpha = .1) +
+  geom_point(alpha = .6) +
+  facet_wrap(~activity_class, scales = "free_y") +
+  labs(x = "Weekday", y = "Average time spent (minutes)", color = "Activity type") + 
+  theme_bw() +
+  theme(legend.position = "none")
+
+```
+
+Now I have to only use 'Work_or_school' as an example
+
+```{r}
+df2 %>%
+  ggplot(aes(weekday, value1, group = week_number, color = Work_or_school)) + 
+  geom_line(size=1, alpha = .1) +
+  geom_point(alpha = .6) +
+  facet_wrap(~Work_or_school, scales = "free_y") +
+  labs(x = "Weekday", y = "Average time spent (minutes)", colour = "Activity type") + 
+  theme_bw() +
+  theme(legend.position = "none")
+
+```
+
+
+## Exercise 2
+
+### 2.1
+
+What is computed in the code chunk below - what do the numbers tell you?  
+
+Can you think of another way to calculate the same thing?  
+
+```{r}
+df2 %>%
+  distinct(indivID, date) %>%
+  arrange(date) %>%
+  count(date)
+
+```
+
+```{r}
+grouped_df2 <- df2 %>%
+  group_by(date)
+
+grouped_df2 %>%
+  summarise(n = n())
+
+```
+
+My excercise ended here. I may continue later.
+
+The direct reason is that the button 'run' disappeared when I did excercise after 2.2 and I could not run any chunk. However, the main reason is that I did not keep the pace of the lecture at all last week. I did not know why it was so difficult/abstract to understand. By the way, my study is cross-sectional and there is no variable regarding of time.
+
+I would like to say something about the course. 
+
+The first one is about the appproach to teaching. Lacking of interaction impairs the quality of teaching.
+
+I do not mean the timely Q&A during you had already done in the lectures. In the online UH MOOC last year (https://mooc.helsinki.fi/course/view.php?id=273&lang=en; it has been run for many rounds) or video remote R course this semester (friends are taking), thanks to the interactive applets, short instructional video (can be stopped anytime) and active forum helpping each other, we had time to understand, digest and solve most of the problems. Considering the size and type of the course, I know some of them are unrealistic for ours. But the impact does exist.
+
+The second one is about the assessment. The grade every week is a little bit strict. 
+
+It is pass/fail. At the same time, 'a valiant effort without full completion' gives half of the points. The criteria is reasonable for a 2-credit course but this one is 5-credit and intensive. In other 5-credit R course, either every task is graded by 5 points, or the criteria is not harsh.
+
+If there is only one or two wrong words (eg.week2ex3, week4ex4, the means are equal between the groups because I used df&variable. The name of one variable start with a garbled code and I made the same choice when other could be found directly), in practice, it cannot work at all. But it is in a course, it lead to 1/2 points, which was the same as I wrote a chunk ending with a incomplete plot or even without drawing. Therefore it is so easy to be on the edge of losing all the 5 credits, like me (got 19/36 points before this week). 
+
+I hesitated to write those above. Any course on R is tough and full of error. I am not sure how many students have the similar confusion. Moreover, we have already been a doctoral students and do not need to value credits too much. I just do not want to give up without struggling (and my field is teaching and learning in higher education): since the aim of attending courses is to learn something, shall a student stop when he/she heard something but was unable to master it? It sounds like the course and teachers abandon the participants without communication, as long as they did not keep the pace.
+
+-
+Thank you for the explanation below the grade. I made some corrections in previous exercises(only seen in the page of course diary: <https://yufanyin.github.io/datavis-R/>; reupload in Moodle after so many days is not proper)
+
+Either for acquiring skills or credits, I hope I can continue attending this course.
+
+
+
+
+### 2.2
+
+Plot the numbers from above (use points, lines, or whatever you think is suitable).  
+
+```{r}
+df2 %>%
+  ggplot(aes(date, indivID)) +
+  geom_point()
+
+```
+
+
+## Exercise 3
+
+### 3.1
+
+Count the **total number of participants** in the data.  
+
+```{r}
+  
+```
+
+### 3.2
+
+For each participant, count the **number of separate days** that they recorded their time use on.  
+
+```{r}
+  
+```
+
+
+## Exercise 4
+
+Explain step by step what happens in the code chunk below, and what the final figure represents.
+
+```
+df2 %>%
+  group_by(indivID) %>%
+  mutate(start_date = min(date)) %>%
+  ungroup %>%
+  mutate(indivID = factor(indivID),
+         indivID = fct_reorder(indivID, start_date) %>% fct_rev()) %>%
+  ggplot(aes(date, indivID, colour = month(start_date, label = T))) + 
+  geom_line() + 
+  geom_point(size=.5, alpha=.1) +
+  theme_bw() + 
+  scale_y_discrete(breaks = "none") +
+  labs(x = "Date", y = "", colour = "Starting month")
+
+```
+
+
+
+
+

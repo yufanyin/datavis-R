@@ -1,0 +1,223 @@
+# Week 6 Exercises
+
+yufan_yin_week6: 20.10. - 27.10.2020
+
+Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
+
+```{r include=F}
+library(broom)
+library(tidyverse)
+
+```
+
+## Exercise 1
+
+The data frames df_w and df_f represent repeated measures data from 60 participants. Variables F1-F3 and W1-W3 are "sub-variables" that will be used to make two composite variables F_total and W_total, respectively. 
+
+```{r include=F}
+# simulating data
+# This chunk run well after clicking 'run' but somehow had error when I knitted ('%>%' does not exist). So, I cannot submit html document.
+set.seed(1)
+df_f <- data.frame(id = rep(1:60, each = 2) %>% as.character,
+                 session = rep(2:1, 60),
+                 group = rep(1:2, each = 60),
+                 F1 = sample.int(4, 120, replace = T) - 1,
+                 F2 = sample.int(4, 120, replace = T) - 1,
+                 F3 = (sample.int(4, 120, replace = T) - 1)) %>%
+  mutate(F3 = F3*(session-1), F2 = F2*(group-1)*(2-session)) %>%
+  mutate(group = factor(group))
+
+df_w <- data.frame(id = rep(1:60, each = 2) %>% as.character,
+                 session = rep(1:2, 60) %>% factor,
+                 group = rep(1:2, each = 60) %>% factor,
+                 W1 = sample.int(4, 120, replace = T) - 1,
+                 W2 = sample.int(4, 120, replace = T) - 1,
+                 W3 = sample.int(4, 120, replace = T) - 1)
+```
+
+### 1.1
+
+Merge the two data frames together.
+
+```{r}
+df_f <- df_f  %>% 
+  mutate(session = as.factor(session)) # many errors occurred when I tried to change the type of 'session' and 'group'. Q: I still did not understand why only factor works.
+
+df <- full_join(df_f, df_w, by = c("id" = "id", "session" = "session", "group" = "group"), suffix = c("_f", "_w")) 
+
+head(df)
+
+```
+
+
+### 1.2
+
+Using the merged data frame, create the **composite variables F_total and W_total, which are the sums of F1-F3 and W1-W3, respectively** (i.e. their values can range from 0 to 9).
+
+```{r}
+df$F_total <- rowSums(df[, c('F1', 'F2', 'F3')])
+
+df$W_total <- rowSums(df[, c('W1', 'W2', 'W3')]) 
+
+# I searched all the material and did not find row or column sums were taught. Why it could be an exercise?
+
+head(df)
+
+```
+
+
+## Exercise 2
+
+### 2.1
+
+Visualise the distributions of F_total and W_total for the two groups and measurement sessions (for example as boxplots). 
+
+```{r}
+df %>%
+  ggplot(aes(session, F_total)) + 
+  geom_boxplot() +
+  facet_wrap(~group)
+
+df %>%
+  ggplot(aes(session, W_total)) + 
+  geom_boxplot() +
+  facet_wrap(~group)
+
+```
+
+
+```{r}
+# try more
+df %>%
+  ggplot(aes(session, F_total)) + 
+  geom_violin() +
+  geom_dotplot(binaxis = "y", stackdir = "center", alpha = .3, binwidth = .1) +
+  facet_wrap(~group)
+
+# Q: Is binwidth set without specific standard ('exploring multiple widths to find the best to illustrate the stories in your data')? I found the pots was too big when binwidth = 1 (according to data_wrangling_and_plotting_week3)?.
+
+df %>%
+  ggplot(aes(session, W_total)) + 
+  geom_violin() +
+  geom_jitter(alpha = .3) +
+  facet_wrap(~group)
+
+# Q: Is the distribution is the original without any calculating or rotation? If so, I prefer this plot to the next one.
+
+# ['The jitter geom is a convenient shortcut for geom_point(position = "jitter"). It adds a small amount of random variation to the location of each point, and is a useful way of handling overplotting caused by discreteness in smaller datasets.']
+
+df %>%
+  ggplot(aes(session, W_total)) + 
+  geom_violin() +
+  geom_dotplot(binaxis = "y", stackdir = "center", alpha = .3, binwidth = .1) +
+  facet_wrap(~group)
+
+# ['stackdir: which direction to stack the dots. "up" (default), "down", "center", "centerwhole" (centered, but with dots aligned)']
+
+```
+
+### 2.2
+
+Fit a linear regression model with F_total as the DV, and session and group as predictors.  
+
+```{r}
+# where is 'DV'?
+# LM with an interaction effect
+F_total.model.1 <- lm(F_total ~ session * group, data = df)
+
+summary(F_total.model.1)
+
+```
+
+```
+F_total_coef <- broom::tidy(F_total.model.1) %>%
+  select(term, estimate) %>%
+  mutate(estimate = round(estimate, 2)) %>% # round decimals for plot text
+  spread(term, estimate) %>%
+  rename(Intercept = `(Intercept)`,
+         group_coef = group,
+         session_coef = session,
+         session_group_coef = `session:group`)
+
+error: Can't rename columns that don't exist. x Column `group` doesn't exist.
+
+```
+
+
+```
+# I failed to rename the columns above so this chunk had error. I have to delet {r} to retain the codes.
+
+(F_total_plot <- broom::augment(F_total.model.1, se_fit = T) %>%
+  ggplot(aes(session, F_total)) +
+  geom_point(aes(color = group), alpha = .7) + 
+  geom_line(aes(session, .fitted, color = group), size = 1) + 
+  geom_ribbon(aes(ymin=.fitted-1.96*.se.fit, ymax=.fitted+1.96*.se.fit, fill = group), alpha=0.2) +
+  theme_bw())
+
+# plot annotations
+F_total_plot +
+  geom_point(aes(0, F_total_coef$Intercept)) + # mark the intercept point
+  geom_text(aes(0.35, F_total_coef$Intercept, 
+                label = paste("Intercept =", F_total_coef$Intercept)), vjust=-.9) +
+  geom_text(aes(4.2, F_total_coef$Intercept + F_total_coef$session_coef * 4.2, # annotate session coefficient 
+                label = paste("Slope =", F_total_coef$session_coef)),
+            vjust = -.9) +
+  geom_segment(aes(x = 1.3, y = F_total_coef$Intercept + F_total_coef$session_coef * 1.3, # draw arrow to mark gender coefficient
+                   xend = 1.3, yend = F_total_coef$Intercept + F_total_coef$session_coef * 1.3 + F_total_coef$group_coef * 1), 
+               arrow = arrow()) + 
+  geom_text(aes(1.3, F_total_coef$Intercept + F_total_coef$session_coef * 1.3 + F_total_coef$gender_coef * 1, 
+                label = paste("Female coef =", F_total_coef$group_coef)),
+            vjust = 2, hjust = 1.1) +
+   geom_segment(aes(x = 1.3, y = F_total_coef$Intercept + F_total_coefsession_coef * 1.3 + F_total_coef$group_coef * 1,
+                    xend = 1.3, yend = F_total_coef$Intercept + F_total_coef$session_coef * 1.3 + GPA_coef$group_coef * 1 +  F_total_coef$session_group_coef * 1.3), 
+               arrow = arrow()) +
+   geom_text(aes(1.3, F_total_coef$Intercept + F_total_coef$session_coef * 1.3 + F_total_coef$group_coef * 1 + F_total_coef$session_group_coef * 1.3, 
+                label = paste("Interaction coef =", F_total_coef$session_group_coef)),
+            vjust = 2, hjust = 1.1) 
+
+```
+
+### 2.3
+
+Look at the means of F_total by group and session. How are they linked to the linear regression model coefficients?
+
+```{r}
+grouped_F_total1 <- df %>%
+  group_by(group)
+
+grouped_F_total1 %>%
+  summarise(F_total1 = mean(F_total))
+
+grouped_F_total2 <- df %>%
+  group_by(session)
+
+grouped_F_total2 %>%
+  summarise(F_total2 = mean(F_total))
+
+```
+
+
+## Exercise 3
+
+Visualise the [anscombe dataset](https://rdrr.io/r/datasets/anscombe.html) using ggplot2.
+
+```{r}
+
+```
+
+
+## Exercise 4
+
+Prepare a **separate R Notebook/Markdown document**, which will be the first draft of your final assignment with your own data. In the draft, include the following:  
+
+1. Outline the study design, your research question, DV(s), IV(s)  
+2. Data wrangling: start from reading in the raw data and show all steps  
+3. Plot your main result(s)    
+
+Even if you had already completed some of these steps before, please include all of them in your document. **NOTE: Return either a readable HTML document (.html or .nb.html), or an .Rmd file along with your data, to make it possible for us to review your work!** Make the document as professional-looking as possible (you can, of course, include your comments/questions in the draft). You will get feedback on the draft, based on which you can then make the final version. The final document should be a comprehensive report of your data wrangling process and results. 
+
+```{r}
+# Sorry, recently I have other urgent task for my article and do not have enough time to do this part.
+
+```
+
