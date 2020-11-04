@@ -1,0 +1,201 @@
+# Final Assignment
+
+Week 6 Exercises 4
+
+Also see in the page to my course diary: <https://yufanyin.github.io/datavis-R/>
+
+```{r include=F}
+library(broom)
+library(tidyverse)
+
+```
+
+Prepare a **separate R Notebook/Markdown document**, which will be the first draft of your final assignment with your own data. In the draft, include the following:  
+
+1. Outline the study design, your research question, DV(s), IV(s)  
+2. Data wrangling: start from reading in the raw data and show all steps  
+3. Plot your main result(s)    
+
+Even if you had already completed some of these steps before, please include all of them in your document. **NOTE: Return either a readable HTML document (.html or .nb.html), or an .Rmd file along with your data, to make it possible for us to review your work!** Make the document as professional-looking as possible (you can, of course, include your comments/questions in the draft). You will get feedback on the draft, based on which you can then make the final version. The final document should be a comprehensive report of your data wrangling process and results. 
+
+
+## 7.1 Reading the data
+
+**Structure of the data**
+
+```{r, reading the data}
+learning2019 <- read.csv(file = "D:/Users/yinyf/datavis-R/week0/learning2019_w4.csv", stringsAsFactors = TRUE) 
+learning19 <- learning2019[1:13]
+str(learning19)
+```
+
+```
+**The aim of the study** is to investigate the interrelationships between the approaches to learning and conceptions of academic writing among international university students. The research questions are as follows:
+
+1) What kinds of conceptions of academic writing (blocks, procrastination, perfectionism, innate ability, knowledge transforming and productivity) the international students have?
+
+2) What kinds of approaches to learning (deep approach to learning, unreflective studying and organised studying) the international students apply in their studies and what learning profiles can be identified?
+
+3) What are the differences in conceptions of academic writing between the learning profiles?
+
+Altogether 218 international students of the university participated in the study in 2018 and 2019. Students were divided into homogeneous groups based on their Z scores on the three approaches to learning. Then we compare mean differences and ANOVA results between the profiles.
+
+```
+
+```
+The data were collected with Writing Process Questionnaire (Lonka, 2003; Lonka et al., 2014) and HowULearn Questionnaire (Parpala & Lindblom-Ylänne, 2012; Hailikari & Parpala, 2014). Both of them are the 5-point Likert scale and have been validated in Finnish and other contexts. 
+
+**The data 'learning2019'** consists of 218 observations and 17 variables. It contains their scores of approaches to learning (different ways that students process information: unreflective studying, deep approach to learning and organised studying), conceptions of academic writing (blocks, procrastination, perfectionism, innate ability, knowledge transforming and productivity), and some background information (categorical variables, eg:gender, age, faculty, student status and study length).
+
+**The explanation of some columns** are as follows. Each of them was average value of 2-4 questions in 5-point Likert scale (1= totally disagree, 5 = fully agree; hence it means nothing if I calculate the sum of A1, A2 and A3 or AW1 - AW6).
+
+- "cluster": the membership after doing k-means clustering analysis. 1) Reflective and organised students (N=97, 45.1%), 2) Reflective and unorganised students (N=78, 36.3%), and 3) Unreflective and unorganised students (N=40, 18.6%)
+
+- "unref": relying on memorisation in the learning process, lacking the reflective approach to studying and applying the fragmented knowledge base.
+
+- "deep": comprehending the intentional content, using evidence and integrating with previous knowledge.
+
+- "orga": time management, study organisation, effort management and concentration.
+
+- "blocks": the inability to write productively whose reason is not intellectual capacity or literary skills.
+
+- "procrastination": failing to start or postponing tasks like preparing for exams and doing homework.
+
+- "perfectionism": setting overly high standards, pursuing flawlessness, and evaluating one’s behavior critically.
+
+- "innateability": writing is a skill which "is determined at birth" or "cannot be taught or developed".
+
+- "ktransforming": (knowledge transforming) using writing for developing knowledge and generating new ideas and in the reflective and dialectic processes.
+
+- "productivity": (sense of productivity) part of self-efficacy in writing.
+
+```
+
+## 7.2 Relationships between the variables: Correlation matrix
+
+Calculate and print the correlation matrix
+```{r}
+cor_matrix<-cor(learning19[2:10]) %>% round(digits = 2)
+cor_matrix
+```
+
+Specialized according to the significant level and visualize the correlation matrix
+p.mat <- cor.mtest(cor_matrix)$p
+
+```{r, message=FALSE}
+library(corrplot)
+p.mat <- cor.mtest(cor_matrix)$p
+corrplot(cor_matrix, method="circle", type="upper",  tl.cex = 0.6, p.mat = p.mat, sig.level = 0.01, title="Correlations of learning19", mar=c(0,0,1,0))
+```
+
+
+## 7.3 Learning profiles (based on the combination of approaches to learning)
+
+### 7.3.1 Means of approaches to learning
+
+```{r, means of approaches to learning, message=FALSE}
+grouped_df1 <- learning19 %>%
+  group_by(锘縞luster)
+
+grouped_df1 %>%
+  summarise(unref_mean = mean(unref), deep_mean = mean(deep), orga_mean = mean(orga))
+
+```
+
+### 7.3.2 Boxplot: means of approaches to learning
+
+```{r, message=FALSE, warning=FALSE}
+learning19 %>%
+  ggplot(aes(锘縞luster, unref)) + 
+  geom_boxplot() +
+  facet_wrap(~gender)
+
+learning19 %>%
+  ggplot(aes(锘縞luster, deep)) + 
+  geom_boxplot() +
+  facet_wrap(~gender)
+
+learning19 %>%
+  ggplot(aes(锘縞luster, orga)) + 
+  geom_boxplot() +
+  facet_wrap(~gender)
+
+```
+
+## 7.4 Differences in conceptions of academic writing between the learning profiles
+
+### 7.4.1 Means of conceptions of academic writing
+
+```{r, means of conceptions of academic writing, message=FALSE}
+grouped_df2 <- learning19 %>%
+  group_by(锘縞luster)
+
+grouped_df2 %>%
+  summarise(blocks_mean = mean(blocks), proc_mean = mean(procrastination), perf_mean = mean(perfectionism), inab_mean = mean(innateability), ktrans_mean = mean(ktransforming), produ_mean = mean(productivity))
+
+```
+
+
+### 7.4.2 X-y scatter plot: orga-procrastination;orga-productivity
+
+```{r, x-y scatter plot 1, message=FALSE}
+learning19 <- learning19 %>%
+              mutate(锘縞luster = as.factor(锘縞luster)) 
+learning19 %>%
+  ggplot(aes(orga, procrastination, color = 锘縞luster)) + # x = orga, y = procrastination
+  geom_point()
+
+```
+```
+Error(Invalid index: out of bounds) occurred after I wrote: 
+, labels = c('Reflective and organised students','Reflective and unorganised students ','Unreflective and unorganised students'))
+
+So I did not add lable of gender and cluster.
+
+```
+
+```{r, x-y scatter plot 2, message=FALSE}
+learning19 %>%
+  ggplot(aes(orga, productivity, color = 锘縞luster)) + # x = orga, y = productivity
+  geom_point()
+
+```
+
+
+### 7.4.3 Bar plots: cluster, blocks
+
+```{r, message=FALSE}
+learning19 <- learning19 %>%
+              mutate(gender = as.factor(gender)) 
+
+learning19 %>% 
+  ggplot(aes(锘縞luster, blocks, fill = gender)) + 
+  geom_col(position = "dodge") + 
+  geom_smooth(method = "lm")
+
+```
+
+### 7.4.4 Bar plots: deep, perfectionism
+
+```{r, message=FALSE}
+learning19 %>%
+  ggplot(aes(deep, perfectionism, fill = gender)) + 
+  geom_col() +
+  facet_wrap(~锘縞luster) # this may not be the best way of visualisation
+
+```
+
+### 7.4.5 One-way ANOVA test: deep~blocks
+
+one of the findings is that students applying deep approach to learning experienced less blocks and perfectionism and tend not to regard academic writing as an innate ability.
+
+Take deep~blocks as an example (I am unfamiliar to the function)
+
+```{r}
+anova_one_way <- aov(deep~blocks, data = learning19)
+summary(anova_one_way)
+
+```
+
+
+

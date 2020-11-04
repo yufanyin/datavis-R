@@ -40,3 +40,7 @@ output:
 ***
 ```{r child = "yufan_yin_week6.Rmd"}
 ```
+
+***
+```{r child = "yufan_yin_week7.Rmd"}
+```
