@@ -42,5 +42,5 @@ output:
 ```
 
 ***
-```{r child = "yufan_yin_week7.Rmd"}
+```{r child = "yufan_yin_final assignment.Rmd"}
 ```
